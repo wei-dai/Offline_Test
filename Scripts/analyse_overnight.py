@@ -116,7 +116,7 @@ def analyse_decoder_for_one_room(room_dir, room):
             for data in result:
                 found = False
                 for anchor_file in anchor_list:
-                    if re.search('vqmg', anchor_file) and re.search(data[1][1], anchor_file):
+                    if re.search('vqmg_' + data[1][1] + '.', anchor_file):
                         vqmg_file = client_dir + anchor_file
                         fp = open(vqmg_file, 'r')
                         fp.readline()

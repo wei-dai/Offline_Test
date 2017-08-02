@@ -28,7 +28,7 @@ def start_server():
         pid = os.popen('pgrep ' + gp.server.get_executable_name()).read()
 
         if pid != '':
-            fun.os_system('kill ' + pid)
+            fun.os_system('kill -9 ' + pid)
 
         os.system(gp.server.get_full_path_executable() + ' >>/dev/null &')
 
@@ -228,7 +228,7 @@ def run_test():
 
         pid = os.popen('pgrep ' + gp.server.get_executable_name()).read()
         if pid != '':
-            fun.os_system('kill ' + pid)
+            fun.os_system('kill -9 ' + pid)
 
     fun.clean_up(is_match)
 
