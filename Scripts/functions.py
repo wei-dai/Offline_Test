@@ -7,6 +7,8 @@ import smtplib
 import time
 from email.header import Header
 from email.mime.text import MIMEText
+if gp.cur_platform == "Linux":
+    import utils
 
 import global_parameters as gp
 import test_cases as tc
