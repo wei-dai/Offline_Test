@@ -13,7 +13,7 @@ script_version = '1.0'
 encoder_version = '20120202'
 
 data_type = ['timestamp', 'frame_idx', 'target_bitrate', 'real_bitrate', 'target_fps', 'real_fps', 'PSNR', 'SSIM',
-             'MD5', 'encoding_time', 'bitrate_diff', 'uid', 'is_decodable', 'orig_MD5', 'vqmg']
+             'MD5', 'encoding_time', 'bitrate_diff', 'uid', 'is_decodable', 'orig_MD5', 'vqmg', 'target_purposed_ratio', 'unqualified_ratio']
 
 
 class RunningState:
@@ -215,3 +215,28 @@ clients = []
 
 folder_join = '_'
 string_join = '-'
+
+class Comparison:
+    def __init__(self):
+        #nested dict.fromkeys will lead to simutaneous update
+        self.inc_ = self.generate_dict()
+        self.hold_ = self.generate_dict()
+        self.dec_ = self.generate_dict()
+
+    def add_one_comparison(self, cur_scenario, type_of_data, ref_val, cur_val):
+        if ref_val > cur_val:
+            self.dec_[cur_scenario][type_of_data] += 1
+        elif ref_val == cur_val:
+            self.hold_[cur_scenario][type_of_data] += 1
+        else:
+            self.inc_[cur_scenario][type_of_data] += 1
+    
+    def generate_dict(self):
+        dic = {}
+        for x in scenario:
+            dic[x] = dict.fromkeys(data_type, 0)
+        return dic
+
+
+enc_comparison_class = Comparison()
+dec_comparison_class = Comparison()

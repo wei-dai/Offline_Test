@@ -413,9 +413,7 @@ if gp.cur_platform == 'Linux':
             # [generate_case_name('CommScreenShare', 'Overnight', '0003'), 2, 120, ['2880x1800']*2, [ 1000]*2, [10]*2, [4]*2, ['WikiText']*2],
 
             [generate_case_name('LiveScreenShare', 'Overnight', '0000'), 2, 120, ['2880x1800']*2, [ 1000]*2, [ 5]*2, [0]*2, ['WikiText']*2],
-            [generate_case_name('LiveScreenShare', 'Overnight', '0001'), 2, 120, ['2880x1800']*2, [ 1000]*2, [ 5]*2, [4]*2, ['WikiText']*2],
-            # [generate_case_name('LiveScreenShare', 'Overnight', '0002'), 2, 120, ['2880x1800']*2, [ 1000]*2, [10]*2, [0]*2, ['WikiText']*2],
-            # [generate_case_name('LiveScreenShare', 'Overnight', '0003'), 2, 120, ['2880x1800']*2, [ 1000]*2, [10]*2, [4]*2, ['WikiText']*2],
+            # [generate_case_name('LiveScreenShare', 'Overnight', '0001'), 2, 120, ['2880x1800']*2, [ 1000]*2, [10]*2, [0]*2, ['WikiText']*2],
 
             [generate_case_name('LiveWebInterOp', 'Overnight', '0000'), 4, 120, [  '640x360']*4, [  600,   800,  1000,  1200], [15]*4, [0]*4, ['AzureMedium']*2+['AzureHigh']*2],
             [generate_case_name('LiveWebInterOp', 'Overnight', '0001'), 4, 120, [  '640x360']*4, [  900,  1200,  1500,  1800], [30]*4, [0]*4, ['AzureMedium']*2+['AzureHigh']*2],
