@@ -221,11 +221,10 @@ class CaseSummary:
         # reconstruction: updating the target_purposed_ratio and unqualified_ratio of each client
         for case_idx_ in range(len(case_set_)):
             for client_idx_ in range(len(case_set_[case_idx_])):
-                case_set_[case_idx_].client_[client_idx].data_['target_purposed_ratio'] = 
+                case_set_[case_idx_].client_[client_idx].data_['target_purposed_ratio'] = \
                 case_set_[case_idx_].client_[client_idx].find_rate_ratio()
-                case_set_[case_idx_].client_[client_idx].data_['unqualified_ratio'] = 
+                case_set_[case_idx_].client_[client_idx].data_['unqualified_ratio'] = \
               	case_set_[case_idx_].client_[client_idx].compare_target_and_real()
-
         
         for case in self.case_set_:
             case.sort_client()
