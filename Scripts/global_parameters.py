@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import os
 import platform
 import time
@@ -8,6 +7,7 @@ import re
 import multiprocessing
 from pdb import set_trace as bp
 from matplotlib import pyplot as plt
+
 
 script_version = '1.0'
 encoder_version = '20120202'

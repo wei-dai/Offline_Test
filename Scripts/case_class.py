@@ -4,7 +4,6 @@ import numpy
 import global_parameters as gp
 from pdb import set_trace as bp
 
-
 class DecResult:
 	def __init__(self, uid):
 		self.uid_ = uid

@@ -4,7 +4,6 @@ import sys
 import case_class as cc
 import global_parameters as gp
 
-
 def generate_header(*l):
 	res = '<tr align="center">\n'
 	for item in l:
