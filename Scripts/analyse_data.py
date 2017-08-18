@@ -168,12 +168,10 @@ def compare_encoder_performance_brief(scenario):
 		cur_type_hold = gp.enc_comparison_class.hold_[scenario][type_list[i]]
 		cur_type_dec = gp.enc_comparison_class.dec_[scenario][type_list[i]]
 		#three values, direcly convert them into str
-		if i == 0:
-			(content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '/' + str(cur_type_hold) + '/' + str(cur_type_dec))
-		elif i == 1 or i == 2 or i == 6:
-			(content, fail) = generate_cell(content, fail, '<font color="red">' + str(cur_type_inc)+ '</font>/' + str(cur_type_hold) + '/<font color="green">' + str(cur_type_dec) + '</font>')
+		if i == 0 or i == 1 or i == 2 or i == 6:
+			(content, fail) = generate_cell(content, fail, '<font color="red">' + str(cur_type_inc)+ '&#8593</font>/' + str(cur_type_hold) + '-/<font color="green">' + str(cur_type_dec) + '&#8595</font>')
 		else:
-			(content, fail) = generate_cell(content, fail, '<font color="green">' + str(cur_type_inc)+ '</font>/' + str(cur_type_hold) + '/<font color="red">' + str(cur_type_dec) + '</font>')
+			(content, fail) = generate_cell(content, fail, '<font color="green">' + str(cur_type_inc)+ '&#8593</font>/' + str(cur_type_hold) + '-/<font color="red">' + str(cur_type_dec) + '&#8595</font>')
 	content += '</table>\n'
 	return header + content
 
@@ -340,11 +338,11 @@ def compare_decoder_performance_brief(scenario):
 		cur_type_dec = gp.dec_comparison_class.dec_[scenario][type_list[i]]
 		#three values, direcly convert them into str
 		if i == 5:
-			(content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '/' + str(cur_type_hold) + '/' + str(cur_type_dec))
+			(content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '&#8593/' + str(cur_type_hold) + '-/' + str(cur_type_dec) + '&#8595')
 		elif i == 4:
-			(content, fail) = generate_cell(content, fail, '<font color="red">' + str(cur_type_inc)+ '</font>/' + str(cur_type_hold) + '/<font color="green">' + str(cur_type_dec) + '</font>')
+			(content, fail) = generate_cell(content, fail, '<font color="red">' + str(cur_type_inc)+ '&#8593</font>/' + str(cur_type_hold) + '-/<font color="green">' + str(cur_type_dec) + '&#8595</font>')
 		else:
-			(content, fail) = generate_cell(content, fail, '<font color="green">' + str(cur_type_inc)+ '</font>/' + str(cur_type_hold) + '/<font color="red">' + str(cur_type_dec) + '</font>')
+			(content, fail) = generate_cell(content, fail, '<font color="green">' + str(cur_type_inc)+ '&#8593</font>/' + str(cur_type_hold) + '-/<font color="red">' + str(cur_type_dec) + '&#8595</font>')
 	content += '</table>\n'
 	return header + content
 

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 import os
 import platform
 import time
@@ -7,7 +8,6 @@ import re
 import multiprocessing
 from pdb import set_trace as bp
 from matplotlib import pyplot as plt
-
 
 script_version = '1.0'
 encoder_version = '20120202'
@@ -239,6 +239,9 @@ class Comparison:
         self.dec_ = self.generate_dict()
 
     def add_one_comparison(self, cur_scenario, type_of_data, ref_val, cur_val):
+        if type_of_data == 'target_purposed_ratio':
+            ref_val = abs(1 - ref_val)
+            cur_val = abs(1 - cur_val)
         if ref_val > cur_val:
             self.dec_[cur_scenario][type_of_data] += 1
         elif ref_val == cur_val:
