@@ -11,7 +11,7 @@ from email.mime.text import MIMEText
 import global_parameters as gp
 import test_cases as tc
 from pdb import set_trace as bp
-if gp.cur_platform == "Linux":
+if gp.cur_platform == 'Linux':
     import utils
 
 
