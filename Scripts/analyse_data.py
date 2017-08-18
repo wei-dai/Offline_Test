@@ -149,6 +149,7 @@ def compare_data():
     brief_result_file_handle.write(brief_output)
     brief_result_file_handle.close()
 
+    gp.move_to_dir(gp.pic_dir, gp.problem_case_dir)
     gp.zip_to_folder(problem_zip_name + '.zip', gp.problem_case_dir, gp.problem_dir)
     gp.remove_dir(gp.problem_case_dir)
 
@@ -168,7 +169,10 @@ def compare_encoder_performance_brief(scenario):
         cur_type_hold = gp.enc_comparison_class.hold_[scenario][type_list[i]]
         cur_type_dec = gp.enc_comparison_class.dec_[scenario][type_list[i]]
         #three values, direcly convert them into str
-        (content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '/' + str(cur_type_hold) + '/' + str(cur_type_dec))
+        if i == 0 or i == 1 or i == 2 or i == 6:
+            (content, fail) = generate_cell(content, fail, '<font color="red">' + str(cur_type_inc)+ '&#8593</font>/' + str(cur_type_hold) + '-/<font color="green">' + str(cur_type_dec) + '&#8595</font>')
+        else:
+            (content, fail) = generate_cell(content, fail, '<font color="green">' + str(cur_type_inc)+ '&#8593</font>/' + str(cur_type_hold) + '-/<font color="red">' + str(cur_type_dec) + '&#8595</font>')
     content += '</table>\n'
     return header + content
 
@@ -249,51 +253,75 @@ def compare_one_enc_case(cur_case, ref_case, scenario):
             cur_content = ''
 
         cur_content += generate_one_cell(cur_case.get_config(idx))[0]
-        type_list = ['target_purposed_ratio', 'unqualified_ratio', 'bitrate_diff', 'real_fps', 'PSNR', 'SSIM', 'encoding_time']
-        lower_ranges = [0.95, 0.95, 0.00, 0.95, 0.95, None, None]
-        higher_ranges = [1.05, 1.05, 5, 1.05, 1.05, None, None]
-        is_absolute = [False, False, True, False, False, False, False]
-        for i in range(len(type_list)):
-            ref_val = ref_case.get_enc_data(type_list[i])[idx]
-            cur_val = cur_case.get_enc_data(type_list[i])[idx]
-            (cur_content, fail) = generate_cell(cur_content, fail, (ref_val, cur_val), lower_ranges[i], higher_ranges[i], is_absolute[i])
-            #print scenario
-            gp.enc_comparison_class.add_one_comparison(scenario, type_list[i], ref_val, cur_val)
-        '''(cur_content, fail) = generate_cell(cur_content, fail,
+
+        (cur_content, fail) = generate_cell(cur_content, fail,
                                             (ref_case.get_enc_data('target_purposed_ratio')[idx],
                                              cur_case.get_enc_data('target_purposed_ratio')[idx]),
-                                            0.95, 1.05)
+                                            0.7, 1.3, True)
+        gp.enc_comparison_class.add_one_comparison(scenario, 'target_purposed_ratio', 
+                                            ref_case.get_enc_data('target_purposed_ratio')[idx], 
+                                            cur_case.get_enc_data('target_purposed_ratio')[idx])
 
         (cur_content, fail) = generate_cell(cur_content, fail,
                                             (ref_case.get_enc_data('unqualified_ratio')[idx],
                                              cur_case.get_enc_data('unqualified_ratio')[idx]),
-                                            0.95, 1.05)
+                                            0.0, 1.05, True)
+        gp.enc_comparison_class.add_one_comparison(scenario, 'unqualified_ratio', 
+                                            ref_case.get_enc_data('unqualified_ratio')[idx], 
+                                            cur_case.get_enc_data('unqualified_ratio')[idx])
 
         (cur_content, fail) = generate_cell(cur_content, fail,
                                             (ref_case.get_enc_data('bitrate_diff')[idx],
                                              cur_case.get_enc_data('bitrate_diff')[idx]),
-                                            0.00, 5, True)
+                                            0.00, 10, True)
+        gp.enc_comparison_class.add_one_comparison(scenario, 'bitrate_diff', 
+                                            ref_case.get_enc_data('bitrate_diff')[idx], 
+                                            cur_case.get_enc_data('bitrate_diff')[idx])
 
         (cur_content, fail) = generate_cell(cur_content, fail,
                                             (ref_case.get_enc_data('real_fps')[idx],
                                              cur_case.get_enc_data('real_fps')[idx]),
                                             0.95, 1.05)
+        gp.enc_comparison_class.add_one_comparison(scenario, 'real_fps', 
+                                            ref_case.get_enc_data('real_fps')[idx], 
+                                            cur_case.get_enc_data('real_fps')[idx])
 
         (cur_content, fail) = generate_cell(cur_content, fail,
                                             (ref_case.get_enc_data('PSNR')[idx],
                                              cur_case.get_enc_data('PSNR')[idx]),
                                             0.95, 1.05)
+        gp.enc_comparison_class.add_one_comparison(scenario, 'PSNR', 
+                                            ref_case.get_enc_data('PSNR')[idx], 
+                                            cur_case.get_enc_data('PSNR')[idx])
 
         (cur_content, fail) = generate_cell(cur_content, fail,
                                             (ref_case.get_enc_data('SSIM', 100)[idx],
                                              cur_case.get_enc_data('SSIM', 100)[idx]))
+        gp.enc_comparison_class.add_one_comparison(scenario, 'SSIM', 
+                                            ref_case.get_enc_data('SSIM')[idx], 
+                                            cur_case.get_enc_data('SSIM')[idx])
 
         (cur_content, fail) = generate_cell(cur_content, fail,
                                             (ref_case.get_enc_data('encoding_time')[idx],
-                                             cur_case.get_enc_data('encoding_time')[idx]))'''
+                                             cur_case.get_enc_data('encoding_time')[idx]))
+        gp.enc_comparison_class.add_one_comparison(scenario, 'encoding_time', 
+                                            ref_case.get_enc_data('encoding_time')[idx], 
+                                            cur_case.get_enc_data('encoding_time')[idx])
 
         content += '<tr align="center">' + cur_content + '</tr>\n'
 
+        if fail > 0:
+            ref_client_ = ref_case.client_[idx]
+            cur_client_ = cur_case.client_[idx]
+            cur_pic_dir = gp.pic_dir + cur_client_.get_case() + '_Encoder/'
+            if gp.exists_dir(cur_pic_dir) == 0:
+                gp.create_dir(cur_pic_dir)
+            gp.drawOneEncoderClient(cur_pic_dir, cur_client_.get_case()+'_'+cur_client_.get_config(),
+                                    (cur_client_.raw_data_['target_bitrate'], ref_client_.raw_data_['target_bitrate']),
+                                    (cur_client_.raw_data_['real_bitrate'], ref_client_.raw_data_['real_bitrate']),
+                                    (cur_client_.raw_data_['real_fps'], ref_client_.raw_data_['real_fps']),
+                                    (cur_client_.raw_data_['PSNR'], ref_client_.raw_data_['PSNR']),
+                                    (cur_client_.raw_data_['SSIM'], ref_client_.raw_data_['SSIM']))
     if fail > 0:
         return content
     else:
@@ -312,7 +340,12 @@ def compare_decoder_performance_brief(scenario):
         cur_type_hold = gp.dec_comparison_class.hold_[scenario][type_list[i]]
         cur_type_dec = gp.dec_comparison_class.dec_[scenario][type_list[i]]
         #three values, direcly convert them into str
-        (content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '/' + str(cur_type_hold) + '/' + str(cur_type_dec))
+        if i == 5:
+            (content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '&#8593/' + str(cur_type_hold) + '-/' + str(cur_type_dec) + '&#8595')
+        elif i == 4:
+            (content, fail) = generate_cell(content, fail, '<font color="red">' + str(cur_type_inc)+ '&#8593</font>/' + str(cur_type_hold) + '-/<font color="green">' + str(cur_type_dec) + '&#8595</font>')
+        else:
+            (content, fail) = generate_cell(content, fail, '<font color="green">' + str(cur_type_inc)+ '&#8593</font>/' + str(cur_type_hold) + '-/<font color="red">' + str(cur_type_dec) + '&#8595</font>')
     content += '</table>\n'
     return header + content
 
@@ -397,6 +430,24 @@ def compare_one_dec_case(cur_case, ref_case, scenario):
         gp.dec_comparison_class.add_one_comparison(scenario, 'is_decodable', ref_case.get_dec_data('is_decodable')[idx],
                                              cur_case.get_dec_data('is_decodable')[idx])
         
+        if fail > 0:
+            ref_client_ = ref_case.client_[idx]
+            cur_client_ = cur_case.client_[idx]
+            cur_pic_dir = gp.pic_dir + cur_client_.get_case() + '_Decoder/'
+            if gp.exists_dir(cur_pic_dir) == 0:
+                gp.create_dir(cur_pic_dir)
+            if len(ref_client_.decoded_client_) != len(cur_client_.decoded_client_):
+                continue
+            for i in range(len(ref_client_.decoded_client_)):
+                ref_dec = ref_client_.decoded_client_[i]
+                cur_dec = cur_client_.decoded_client_[i]
+                gp.drawOneDecoderClient(cur_pic_dir, cur_client_.get_case()+'_'+cur_client_.get_config(),
+                                        str(cur_dec.uid_),
+                                        (cur_dec.raw_data_['real_fps'], ref_dec.raw_data_['real_fps']),
+                                        (cur_dec.raw_data_['real_bitrate'], ref_dec.raw_data_['real_bitrate']),
+                                        (cur_dec.raw_data_['PSNR'], ref_dec.raw_data_['PSNR']),
+                                        (cur_dec.raw_data_['SSIM'], ref_dec.raw_data_['SSIM']))
+
         if fail > mismatch:
             gp.total_mismatch += 1
 

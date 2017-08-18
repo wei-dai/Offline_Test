@@ -7,6 +7,7 @@ import shutil
 import re
 import multiprocessing
 from pdb import set_trace as bp
+from matplotlib import pyplot as plt
 
 
 script_version = '1.0'
@@ -67,10 +68,18 @@ def zip_to_folder(zip_name, zip_folder, target_folder):
     os.chdir(cur_dir)
 
 
+def exists_dir(directory):
+    return os.path.exists(directory)
+
+
 def remove_dir(directory):
     if os.path.exists(directory):
         print_log(LogLevel.Info, 'Removing ' + directory)
         shutil.rmtree(directory)
+
+
+def move_to_dir(old_dir, new_dir):
+    os.system('mv ' + old_dir + ' ' + new_dir)
 
 
 def create_dir(directory):
@@ -142,6 +151,7 @@ else:
     sequence_dir = cur_abs_dir + '../../UnitTest_multi_process/Sequences/'
     executable_dir = cur_abs_dir + 'Executable/Darwin/'
 
+pic_dir = data_dir + 'pic/'
 result_dir = generate_dir_path(data_dir, 'Results')
 network_dir = generate_dir_path(cur_abs_dir, 'Network')
 problem_dir = generate_dir_path(data_dir, 'ProblematicCase')
@@ -240,3 +250,47 @@ class Comparison:
 
 enc_comparison_class = Comparison()
 dec_comparison_class = Comparison()
+
+#Draw graphs for problematic clients.
+def drawOneEncoderClient(cur_pic_dir, client_name, target_bitrate, real_bitrate, real_fps, PSNR, SSIM):
+    plots = []
+    for i in range(4):
+        plots.append(plt.subplot(2, 2, i+1))
+    plots[0].plot(target_bitrate[0], label='taget_bitrate(cur)', color='r')
+    plots[0].plot(target_bitrate[1], label='taget_bitrate(ref)', color='b')
+    plots[0].plot(real_bitrate[0], label='real_bitrate(cur)', color='r', ls=':')
+    plots[0].plot(real_bitrate[1], label='real_bitrate(ref)', color='b', ls=':')
+    plots[1].plot(real_fps[0], label='real_fps(cur)', color='r')
+    plots[1].plot(real_fps[1], label='real_fps(ref)', color='b')
+    plots[2].plot(PSNR[0], label='PSNR(cur)', color='r')
+    plots[2].plot(PSNR[1], label='PSNR(ref)', color='b')
+    plots[3].plot(SSIM[0], label='SSIM(cur)', color='r')
+    plots[3].plot(SSIM[1], label='SSIM(ref)', color='b')
+    for i in range(4):
+        plots[i].legend(fontsize='x-small')
+        plots[i].set_xlim(xmin=0)
+    current_plot = plt.gcf()
+    current_plot.savefig(cur_pic_dir + 'Enc-' + client_name + '.png', format='png', dpi = 100)
+    plt.close()
+
+
+def drawOneDecoderClient(cur_pic_dir, client_name, decoded_uid, real_fps, real_bitrate, PSNR, SSIM):
+    plots = []
+    for i in range(4):
+        plots.append(plt.subplot(2, 2, i+1))
+
+    plots[0].plot(real_fps[0], label='real_fps(cur)', color='r')
+    plots[0].plot(real_fps[1], label='real_fps(ref)', color='b')
+    plots[1].plot(real_fps[0], label='real_bitrate(cur)', color='r')
+    plots[1].plot(real_fps[1], label='real_bitrate(ref)', color='b')
+    plots[2].plot(PSNR[0], label='PSNR(cur)', color='r')
+    plots[2].plot(PSNR[1], label='PSNR(ref)', color='b')
+    plots[3].plot(SSIM[0], label='SSIM(cur)', color='r')
+    plots[3].plot(SSIM[1], label='SSIM(ref)', color='b')
+
+    for i in range(4):
+        plots[i].legend(fontsize='x-small')
+    plt.xlim(xmin = 0)
+    current_plot = plt.gcf()
+    current_plot.savefig(cur_pic_dir + 'Dec-' + client_name + '-for_' + decoded_uid + '.png', format='png', dpi = 100)
+    plt.close()

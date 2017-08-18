@@ -9,6 +9,8 @@ class DecResult:
     def __init__(self, uid):
         self.uid_ = uid
         self.map_ = dict.fromkeys(gp.data_type, 0)
+        #store raw_data for generating pictures
+        self.raw_data_ = dict.fromkeys(gp.data_type, [])
         self.data_ = dict.fromkeys(gp.data_type, -1)
         self.time_ = 0
 
@@ -17,6 +19,8 @@ class DecResult:
         if tmp[1] != '':
             assert self.map_[tmp[0]] == 0
             self.map_[tmp[0]] = 1
+            #store raw_data
+            self.raw_data_[tmp[0]] = map(float, tmp[1:])
             self.data_[tmp[0]] = numpy.mean(map(float, tmp[1:]))
             if self.time_ == 0:
                 self.time_ = len(tmp) - 1
@@ -33,21 +37,19 @@ class Client:
         self.rate_ = int(tmp[2].split(gp.folder_join)[0][4:])
         self.decoded_client_ = []
         self.map_ = dict.fromkeys(gp.data_type, 0)
+        self.raw_data_ = dict.fromkeys(gp.data_type, [])
         self.data_ = dict.fromkeys(gp.data_type, 0)
         self.time_ = 0
-        #add two lists
-        self.target_bitrate_ = []
-        self.real_bitrate_ = []
         self.len_ = 0
 
     #add some functions:
     #get length of target_bitrate_ and real_bitrate_
     def get_len_(self):
-        assert len(self.target_bitrate_) == len(self.real_bitrate_)
-        return len(self.target_bitrate_)
+        assert len(self.raw_data_['target_bitrate']) == len(self.raw_data_['real_bitrate'])
+        return len(self.raw_data_['target_bitrate'])
     #judge whether the target_bitrate falls in the correct range.
     def is_rate_reasonable(self, lower_range = 0.8, upper_range = 1.2, absolute = 0):
-        mean_target_bitrate = numpy.mean(self.target_bitrate_)
+        mean_target_bitrate = numpy.mean(self.raw_data_['target_bitrate'])
         if absolute == 0:
             return mean_target_bitrate >= lower_range * self.rate_ and mean_target_bitrate <= upper_range * self.rate_
         else:
@@ -55,16 +57,16 @@ class Client:
 
     #return ratio of target_rate to purposed rate
     def find_rate_ratio(self):
-        mean_target_bitrate = numpy.mean(self.target_bitrate_)
+        mean_target_bitrate = numpy.mean(self.raw_data_['target_bitrate'])
         return mean_target_bitrate / float(self.rate_)
 
     #judge whether target_bitrate always matches well with real_bitrate. In this version, I don't consider how to judge whether the data is fluctuating significantly.
     def compare_target_and_real_plain(self, lower_range = 0.92, upper_range = 1.08):
-        assert len(self.target_bitrate_) == len(self.real_bitrate_)
-        total_sec = len(self.target_bitrate_)
+        assert len(self.raw_data_['target_bitrate']) == len(self.raw_data_['real_bitrate'])
+        total_sec = len(self.raw_data_['target_bitrate'])
         err_sec = 0
-        for i in range(len(self.target_bitrate_)):
-            if self.real_bitrate_[i] < lower_range * self.target_bitrate_[i] or self.real_bitrate_[i] > upper_range * self.target_bitrate_[i]:
+        for i in range(len(self.raw_data_['target_bitrate'])):
+            if self.raw_data_['real_bitrate'][i] < lower_range * self.raw_data_['target_bitrate'][i] or self.raw_data_['real_bitrate'][i] > upper_range * self.raw_data_['target_bitrate'][i]:
                 err_sec += 1
         return float(err_sec)/total_sec*100
 
@@ -73,25 +75,25 @@ class Client:
         self.len_ = self.get_len_()
         #print self.len_
         assert cur_second >= 0 and cur_second <= self.len_-1
-        cur_bitrate = self.target_bitrate_[cur_second]
+        cur_bitrate = self.raw_data_['target_bitrate'][cur_second]
         if cur_second == 0:
-            return self.len_ == 0 or (self.target_bitrate_[1] >= lower_range * cur_bitrate and self.target_bitrate_[1] <= upper_range * cur_bitrate)
+            return self.len_ == 0 or (self.raw_data_['target_bitrate'][1] >= lower_range * cur_bitrate and self.raw_data_['target_bitrate'][1] <= upper_range * cur_bitrate)
         elif cur_second == self.len_-1:
-            return self.time_ == 0 or (self.target_bitrate_[-2] >= lower_range * cur_bitrate and self.target_bitrate_[-2] <= upper_range * cur_bitrate)
+            return self.time_ == 0 or (self.raw_data_['target_bitrate'][-2] >= lower_range * cur_bitrate and self.raw_data_['target_bitrate'][-2] <= upper_range * cur_bitrate)
         else:
-            return (self.target_bitrate_[cur_second-1] >= lower_range * cur_bitrate and self.target_bitrate_[cur_second-1] <= upper_range * cur_bitrate) and (self.target_bitrate_[cur_second+1] >= lower_range * cur_bitrate and self.target_bitrate_[cur_second+1] <= upper_range * cur_bitrate)
+            return (self.raw_data_['target_bitrate'][cur_second-1] >= lower_range * cur_bitrate and self.raw_data_['target_bitrate'][cur_second-1] <= upper_range * cur_bitrate) and (self.raw_data_['target_bitrate'][cur_second+1] >= lower_range * cur_bitrate and self.raw_data_['target_bitrate'][cur_second+1] <= upper_range * cur_bitrate)
     
     #judge whether target_bitrate always matches well with real_bitrate. In this version, the fluctuation of target_bitrate is considered by monitoring the variance of value in 2 adjacent seconds.
     def compare_target_and_real(self, stable_lower_range = 0.92, stable_upper_range = 1.08, fluc_lower_range = 0.9, fluc_upper_range = 1.1):
-        assert len(self.target_bitrate_) == len(self.real_bitrate_)
-        total_sec = len(self.target_bitrate_)
+        assert len(self.raw_data_['target_bitrate']) == len(self.raw_data_['real_bitrate'])
+        total_sec = len(self.raw_data_['target_bitrate'])
         err_sec = 0
-        for i in range(len(self.target_bitrate_)):
+        for i in range(len(self.raw_data_['target_bitrate'])):
             if self.is_stable(i):
-                if self.real_bitrate_[i] < stable_lower_range * self.target_bitrate_[i] or self.real_bitrate_[i] > stable_upper_range * self.target_bitrate_[i]:
+                if self.raw_data_['real_bitrate'][i] < stable_lower_range * self.raw_data_['target_bitrate'][i] or self.raw_data_['real_bitrate'][i] > stable_upper_range * self.raw_data_['target_bitrate'][i]:
                     err_sec += 1
             else:
-                if self.real_bitrate_[i] < fluc_lower_range * self.target_bitrate_[i] or self.real_bitrate_[i] > fluc_upper_range * self.target_bitrate_[i]:
+                if self.raw_data_['real_bitrate'][i] < fluc_lower_range * self.raw_data_['target_bitrate'][i] or self.raw_data_['real_bitrate'][i] > fluc_upper_range * self.raw_data_['target_bitrate'][i]:
                     err_sec += 1
         return float(err_sec)/total_sec*100
 
@@ -99,12 +101,8 @@ class Client:
         tmp = data.split('\n')[0].split('\t')
         assert self.map_[tmp[0]] == 0
         self.map_[tmp[0]] = 1
+        self.raw_data_[tmp[0]] = map(float, tmp[1:])
         self.data_[tmp[0]] = numpy.mean(map(float, tmp[1:]))
-        #store target_bitrate and real bitrate
-        if tmp[0] == 'target_bitrate':
-            self.target_bitrate_ = map(float, tmp[1:])
-        elif tmp[0] == 'real_bitrate':
-            self.real_bitrate_ = map(float, tmp[1:])
         if self.time_ == 0:
             self.time_ = len(tmp) - 1
         elif len(tmp) != 2:
@@ -224,7 +222,8 @@ class CaseSummary:
                 self.case_set_[case_idx_].client_[client_idx_].data_['target_purposed_ratio'] = \
                 self.case_set_[case_idx_].client_[client_idx_].find_rate_ratio()
                 self.case_set_[case_idx_].client_[client_idx_].data_['unqualified_ratio'] = \
-              	self.case_set_[case_idx_].client_[client_idx_].compare_target_and_real()
+                self.case_set_[case_idx_].client_[client_idx_].compare_target_and_real()
+
         
         for case in self.case_set_:
             case.sort_client()
