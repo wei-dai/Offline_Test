@@ -4,6 +4,7 @@ import sys
 import case_class as cc
 import global_parameters as gp
 
+
 def generate_header(*l):
 	res = '<tr align="center">\n'
 	for item in l:
@@ -167,7 +168,12 @@ def compare_encoder_performance_brief(scenario):
 		cur_type_hold = gp.enc_comparison_class.hold_[scenario][type_list[i]]
 		cur_type_dec = gp.enc_comparison_class.dec_[scenario][type_list[i]]
 		#three values, direcly convert them into str
-		(content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '/' + str(cur_type_hold) + '/' + str(cur_type_dec))
+		if i == 0:
+			(content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '/' + str(cur_type_hold) + '/' + str(cur_type_dec))
+		elif i == 1 or i == 2 or i == 6:
+			(content, fail) = generate_cell(content, fail, '<font color="red">' + str(cur_type_inc)+ '</font>/' + str(cur_type_hold) + '/<font color="green">' + str(cur_type_dec) + '</font>')
+		else:
+			(content, fail) = generate_cell(content, fail, '<font color="green">' + str(cur_type_inc)+ '</font>/' + str(cur_type_hold) + '/<font color="red">' + str(cur_type_dec) + '</font>')
 	content += '</table>\n'
 	return header + content
 
@@ -333,7 +339,12 @@ def compare_decoder_performance_brief(scenario):
 		cur_type_hold = gp.dec_comparison_class.hold_[scenario][type_list[i]]
 		cur_type_dec = gp.dec_comparison_class.dec_[scenario][type_list[i]]
 		#three values, direcly convert them into str
-		(content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '/' + str(cur_type_hold) + '/' + str(cur_type_dec))
+		if i == 5:
+			(content, fail) = generate_cell(content, fail, str(cur_type_inc)+ '/' + str(cur_type_hold) + '/' + str(cur_type_dec))
+		elif i == 4:
+			(content, fail) = generate_cell(content, fail, '<font color="red">' + str(cur_type_inc)+ '</font>/' + str(cur_type_hold) + '/<font color="green">' + str(cur_type_dec) + '</font>')
+		else:
+			(content, fail) = generate_cell(content, fail, '<font color="green">' + str(cur_type_inc)+ '</font>/' + str(cur_type_hold) + '/<font color="red">' + str(cur_type_dec) + '</font>')
 	content += '</table>\n'
 	return header + content
 
