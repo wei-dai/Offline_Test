@@ -7,6 +7,8 @@ import shutil
 import re
 import multiprocessing
 from pdb import set_trace as bp
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
 
